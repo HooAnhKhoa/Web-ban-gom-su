@@ -93,9 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <!-- Header -->
-    <header>
-        <!-- Header content -->
-    </header>
+    <?php include 'header.php'; ?>
 
     <!-- Login Section -->
     <section class="auth-section">
