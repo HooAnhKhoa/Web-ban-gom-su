@@ -1,17 +1,17 @@
 <?php
 // File: edit_user.php
-require '../../../conn.php';
+require '../../../../conn.php';
 session_start();
 
 if (!isset($_GET['id'])) {
-    header("Location: tables.php");
+    header("Location: ../product.php");
     exit();
 }
 
 $id = $conn->real_escape_string($_GET['id']);
 
 // Lấy thông tin người dùng
-$sql = "SELECT * FROM tbl_nguoidung WHERE manguoidung = ?";
+$sql = "SELECT * FROM tbl_sanpham WHERE masanpham = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $id);
 $stmt->execute();
@@ -20,7 +20,7 @@ $user = $result->fetch_assoc();
 $stmt->close();
 
 if (!$user) {
-    header("Location: tables.php");
+    header("Location: ../productss.php");
     exit();
 }
 
@@ -30,24 +30,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Token không hợp lệ!");
     }
     
-    $hoten = $conn->real_escape_string($_POST['hoten']);
-    $sodienthoai = $conn->real_escape_string($_POST['sodienthoai']);
-    $vaitro = $conn->real_escape_string($_POST['vaitro']);
+    $tensanpham = $conn->real_escape_string($_POST['tensanpham']);
+    $xuatxu = $conn->real_escape_string($_POST['xuatxu']);
+    $chatlieu = $conn->real_escape_string($_POST['chatlieu']);
+    $mota = $conn->real_escape_string($_POST['mota']);
+    $gia = $conn->real_escape_string($_POST['gia']);
     $trangthai = isset($_POST['trangthai']) ? 1 : 0;
     
     // Cập nhật thông tin
-    $update_sql = "UPDATE tbl_nguoidung SET 
-                    hotennguoidung = ?, 
-                    sodienthoai = ?, 
-                    vaitro = ?, 
-                    trangthai = ? 
-                   WHERE manguoidung = ?";
+    $update_sql = "UPDATE tbl_sanpham SET 
+                tensanpham = ?, 
+                xuatxu = ?, 
+                chatlieu = ?, 
+                mota = ?,
+                gia = ?,
+                trangthai = ? 
+               WHERE masanpham = ?";
     $stmt = $conn->prepare($update_sql);
-    $stmt->bind_param("sssis", $hoten, $sodienthoai, $vaitro, $trangthai, $id);
+    $stmt->bind_param("ssssiis", $tensanpham, $xuatxu, $chatlieu, $mota, $gia, $trangthai, $id);
     
     if ($stmt->execute()) {
         $_SESSION['success'] = "Cập nhật thông tin thành công!";
-        header("Location: tables.php");
+        header("Location: ../products.php");
         exit();
     } else {
         $_SESSION['error'] = "Có lỗi xảy ra: " . $conn->error;
@@ -66,18 +70,18 @@ if (empty($_SESSION['csrf_token'])) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
-    <title>Sửa thông tin người dùng - Argon Dashboard</title>
+    <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png" />
+    <link rel="icon" type="image/png" href="../../assets/img/favicon.png" />
+    <title>Sửa thông tin sản phẩm - Argon Dashboard</title>
     <!-- Fonts and icons -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <!-- Nucleo Icons -->
-    <link href="../assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="../../assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="../../assets/css/nucleo-svg.css" rel="stylesheet" />
     <!-- Main Styling -->
-    <link href="../assets/css/argon-dashboard-tailwind.css?v=1.0.1" rel="stylesheet" />
+    <link href="../../assets/css/argon-dashboard-tailwind.css?v=1.0.1" rel="stylesheet" />
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -212,7 +216,7 @@ if (empty($_SESSION['csrf_token'])) {
         
         .dark .form-input {
             background: #4a5568;
-            border-color: #718096;  
+            border-color: #718096;
             color: #e2e8f0;
         }
         
@@ -234,8 +238,8 @@ if (empty($_SESSION['csrf_token'])) {
       <div class="h-19">
         <i class="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400 xl:hidden" sidenav-close></i>
         <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-slate-700" href="https://demos.creative-tim.com/argon-dashboard-tailwind/pages/dashboard.html" target="_blank">
-          <img src="../assets/img/logo-ct-dark.png" class="inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8" alt="main_logo" />
-          <img src="../assets/img/logo-ct.png" class="hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8" alt="main_logo" />
+          <img src="../../assets/img/logo-ct-dark.png" class="inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8" alt="main_logo" />
+          <img src="../../assets/img/logo-ct.png" class="hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8" alt="main_logo" />
           <span class="ml-1 font-semibold transition-all duration-200 ease-nav-brand">Admin Dashboard</span>
         </a>
       </div>
@@ -245,7 +249,7 @@ if (empty($_SESSION['csrf_token'])) {
       <div class="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
         <ul class="flex flex-col pl-0 mb-0">
           <li class="mt-0.5 w-full">
-            <a class=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="../pages/tables.php">
+            <a class="py-2.7 bg-blue-500/13 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" href="../pages/dashboard.html">
               <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                 <i class="relative top-0 text-sm leading-normal text-blue-500 ni ni-tv-2"></i>
               </div>
@@ -254,7 +258,7 @@ if (empty($_SESSION['csrf_token'])) {
           </li>
 
           <li class="mt-0.5 w-full">
-            <a class="py-2.7 bg-blue-500/13 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" href="../pages/dashboard.html">
+            <a class=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="../pages/tables.php">
               <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                 <i class="relative top-0 text-sm leading-normal text-slate-700 ni ni-single-02"></i>
               </div>
@@ -335,7 +339,7 @@ if (empty($_SESSION['csrf_token'])) {
         <!-- load phantom colors for card after: -->
         <p class="invisible hidden text-gray-800 text-red-500 text-red-600 text-blue-500 dark:bg-white bg-slate-500 bg-gray-500/30 bg-cyan-500/30 bg-emerald-500/30 bg-orange-500/30 bg-red-500/30 after:bg-gradient-to-tl after:from-zinc-800 after:to-zinc-700 dark:bg-gradient-to-tl dark:from-slate-750 dark:to-gray-850 after:from-blue-700 after:to-cyan-500 after:from-orange-500 after:to-yellow-500 after:from-green-600 after:to-lime-400 after:from-red-600 after:to-orange-600 after:from-slate-600 after:to-slate-300 text-emerald-500 text-cyan-500 text-slate-400"></p>
         <div class="relative flex flex-col min-w-0 break-words bg-transparent border-0 shadow-none rounded-2xl bg-clip-border" sidenav-card>
-          <img class="w-1/2 mx-auto" src="../assets/img/illustrations/icon-documentation.svg" alt="sidebar illustrations" />
+          <img class="w-1/2 mx-auto" src="../../assets/img/illustrations/icon-documentation.svg" alt="sidebar illustrations" />
           <div class="flex-auto w-full p-4 pt-0 text-center">
             <div class="transition-all duration-200 ease-nav-brand">
               <h6 class="mb-0 dark:text-white text-slate-700">Need help?</h6>
@@ -360,7 +364,7 @@ if (empty($_SESSION['csrf_token'])) {
                         </li>
                         <li class="text-sm pl-2 capitalize leading-normal text-white before:float-left before:pr-2 before:text-white before:content-['/']" aria-current="page">Sửa thông tin</li>
                     </ol>
-                    <h6 class="mb-0 font-bold text-white capitalize">Sửa thông tin người dùng</h6>
+                    <h6 class="mb-0 font-bold text-white capitalize">Sửa thông tin sản phẩm</h6>
                 </nav>
             </div>
         </nav>
@@ -377,8 +381,8 @@ if (empty($_SESSION['csrf_token'])) {
                     <?php endif; ?>
                     
                     <div class="form-card">
-                        <h3 class="form-title">Sửa thông tin người dùng</h3>
-                        <p class="form-subtitle">Mã: <?php echo htmlspecialchars($user['manguoidung']); ?></p>
+                        <h3 class="form-title">Sửa thông tin sản phẩm</h3>
+                        <p class="form-subtitle">Mã: <?php echo htmlspecialchars($user['masanpham']); ?></p>
                         
                         <form method="POST" action="" id="editForm">
                             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
@@ -386,49 +390,58 @@ if (empty($_SESSION['csrf_token'])) {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Mã người dùng -->
                                 <div class="form-group">
-                                    <label class="form-label">Mã người dùng</label>
-                                    <input type="text" value="<?php echo htmlspecialchars($user['manguoidung']); ?>" class="form-input" readonly>
+                                    <label class="form-label">Mã sản phẩm</label>
+                                    <input type="text" value="<?php echo htmlspecialchars($user['masanpham']); ?>" class="form-input" readonly>
                                 </div>
                                 
                                 <!-- Tên đăng nhập -->
                                 <div class="form-group">
-                                    <label class="form-label">Tên đăng nhập</label>
-                                    <input type="text" value="<?php echo htmlspecialchars($user['tendangnhap']); ?>" class="form-input" readonly>
-                                </div>
-                                
-                                <!-- Họ tên -->
-                                <div class="form-group">
-                                    <label for="hoten" class="form-label">Họ và tên</label>
-                                    <input type="text" name="hoten" id="hoten" required 
-                                           value="<?php echo htmlspecialchars($user['hotennguoidung']); ?>"
+                                    <label for="tensanpham" class="form-label">Tên sản phẩm</label>
+                                    <input type="text" name="tensanpham" id="tensanpham" required 
+                                           value="<?php echo htmlspecialchars($user['tensanpham']); ?>"
                                            class="form-input">
                                 </div>
                                 
-                                <!-- Số điện thoại -->
                                 <div class="form-group">
-                                    <label for="sodienthoai" class="form-label">Số điện thoại</label>
-                                    <input type="tel" name="sodienthoai" id="sodienthoai"
-                                           value="<?php echo htmlspecialchars($user['sodienthoai']); ?>"
+                                    <label class="form-label">Mã loại</label>
+                                    <input type="text" value="<?php echo htmlspecialchars($user['maloai']); ?>" class="form-input" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="xuatxu" class="form-label">Xuất xứ</label>
+                                    <input type="text" name="xuatxu" id="xuatxu" required 
+                                           value="<?php echo htmlspecialchars($user['xuatxu']); ?>"
                                            class="form-input">
                                 </div>
-                                
-                                <!-- Vai trò -->
-                                <div class="form-group">
-                                    <label for="vaitro" class="form-label">Vai trò</label>
-                                    <select name="vaitro" id="vaitro" required class="form-input">
-                                        <option value="admin" <?php echo $user['vaitro'] == 'admin' ? 'selected' : ''; ?>>Quản trị viên</option>
-                                        <option value="staff" <?php echo $user['vaitro'] == 'staff' ? 'selected' : ''; ?>>Nhân viên</option>
-                                        <option value="user" <?php echo $user['vaitro'] == 'user' ? 'selected' : ''; ?>>Người dùng</option>
-                                    </select>
+
+                               <div class="form-group">
+                                    <label for="chatlieu" class="form-label">Chất liệu</label>
+                                    <input type="text" name="chatlieu" id="chatlieu" required 
+                                           value="<?php echo htmlspecialchars($user['chatlieu']); ?>"
+                                           class="form-input">
+                                </div>
+
+                               <div class="form-group">
+                                    <label for="mota" class="form-label">Mô tả</label>
+                                    <input type="text" name="mota" id="mota" required 
+                                           value="<?php echo htmlspecialchars($user['mota']); ?>"
+                                           class="form-input">
+                                </div>
+
+                               <div class="form-group">
+                                    <label for="gia" class="form-label">Giá</label>
+                                    <input type="text" name="gia" id="gia" required 
+                                           value="<?php echo htmlspecialchars($user['gia']); ?>"
+                                           class="form-input">
                                 </div>
                                 
                                 <!-- Trạng thái -->
                                 <div class="form-group">
-                                    <label class="form-label">Trạng thái tài khoản</label>
+                                    <label class="form-label">Trạng thái</label>
                                     <div class="switch">
                                         <input type="checkbox" name="trangthai" id="trangthai" 
                                                <?php echo $user['trangthai'] == 1 ? 'checked' : ''; ?>>
-                                        <span id="statusText"><?php echo $user['trangthai'] == 1 ? 'Hoạt động' : 'Không hoạt động'; ?></span>
+                                        <span id="statusText"><?php echo $user['trangthai'] == 1 ? 'Còn' : 'Không còn'; ?></span>
                                     </div>
                                 </div>
                             </div>
@@ -441,32 +454,6 @@ if (empty($_SESSION['csrf_token'])) {
                                     <i class="fas fa-save mr-2"></i>Cập nhật
                                 </button>
                                 <button type="submit" id="submitBtn" style="display: none;">Submit</button>
-                            </div>
-                        </form>
-                        
-                        <!-- Phần đổi mật khẩu đơn giản -->
-                        <hr class="my-8">
-                        <h4 class="form-title mb-4">Đổi mật khẩu</h4>
-                        <form method="POST" action="change_password.php">
-                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                            <input type="hidden" name="id" value="<?php echo $user['manguoidung']; ?>">
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="form-group">
-                                    <label for="new_password" class="form-label">Mật khẩu mới</label>
-                                    <input type="password" name="new_password" class="form-input">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="confirm_password" class="form-label">Xác nhận mật khẩu</label>
-                                    <input type="password" name="confirm_password" class="form-input">
-                                </div>
-                            </div>
-                            
-                            <div class="flex justify-end mt-4">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-key mr-2"></i>Đổi mật khẩu
-                                </button>
                             </div>
                         </form>
                     </div>
@@ -485,46 +472,47 @@ if (empty($_SESSION['csrf_token'])) {
         
         // Xác nhận cập nhật
         function confirmUpdate() {
-            const hoten = document.getElementById('hoten').value.trim();
-            const vaitro = document.getElementById('vaitro').value;
-            const statusText = document.getElementById('trangthai').checked ? 'Hoạt động' : 'Không hoạt động';
-            
-            if (!hoten) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Vui lòng nhập họ tên',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
-            
-            Swal.fire({
-                title: 'Xác nhận cập nhật',
-                html: `
-                    <div style="text-align: left;">
-                        <p><strong>Họ tên:</strong> ${hoten}</p>
-                        <p><strong>Vai trò:</strong> ${vaitro}</p>
-                        <p><strong>Trạng thái:</strong> ${statusText}</p>
-                        <hr style="margin: 10px 0;">
-                        <p style="color: #666; font-size: 14px;">
-                            Bạn có chắc chắn muốn cập nhật thông tin?
-                        </p>
-                    </div>
-                `,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Cập nhật',
-                cancelButtonText: 'Hủy'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Submit form
-                    document.getElementById('submitBtn').click();
-                }
-            });
+    const tensanpham = document.getElementById('tensanpham').value.trim();
+    const xuatxu = document.getElementById('xuatxu').value;
+    const chatlieu = document.getElementById('chatlieu').value;
+    const statusText = document.getElementById('trangthai').checked ? 'Còn hàng' : 'Hết hàng';
+    
+    if (!tensanpham) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Vui lòng nhập tên sản phẩm',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Xác nhận cập nhật',
+        html: `
+            <div style="text-align: left;">
+                <p><strong>Tên sản phẩm:</strong> ${tensanpham}</p>
+                <p><strong>Xuất xứ:</strong> ${xuatxu}</p>
+                <p><strong>Chất liệu:</strong> ${chatlieu}</p>
+                <p><strong>Trạng thái:</strong> ${statusText}</p>
+                <hr style="margin: 10px 0;">
+                <p style="color: #666; font-size: 14px;">
+                    Bạn có chắc chắn muốn cập nhật thông tin sản phẩm?
+                </p>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Cập nhật',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('submitBtn').click();
         }
+    });
+}
         
         // Hiển thị thông báo nếu có
         <?php if (isset($_SESSION['success'])): ?>

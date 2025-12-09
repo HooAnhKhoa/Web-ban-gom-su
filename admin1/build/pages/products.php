@@ -8,11 +8,10 @@ $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
 $userName = $isLoggedIn ? ($_SESSION['user_name'] ?? $_SESSION['user_email']) : '';
 $userRole = $isLoggedIn ? ($_SESSION['user_role'] ?? 'user') : '';
 
-
 require '../../../conn.php';
 
 // Lấy danh sách user từ database
-$sql = "SELECT manguoidung, hotennguoidung, tendangnhap, trangthai, ngaytao, sodienthoai, mathongtiniaoahang, vaitro FROM tbl_nguoidung ORDER BY ngaytao DESC";
+$sql = "SELECT masanpham, tensanpham, maloai, xuatxu, chatlieu, mota, gia, kichthuoc FROM tbl_sanpham";
 $result = $conn->query($sql);
 
 // Xử lý khi có POST request (cập nhật trạng thái)
@@ -67,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png" />
     <link rel="icon" type="image/png" href="../assets/img/favicon.png" />
-    <title>Quản lý người dùng - Argon Dashboard</title>
+    <title>Quản lý sản phẩm - Argon Dashboard</title>
     <!-- Fonts and icons -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Font Awesome Icons -->
@@ -168,11 +167,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   <body class="m-0 font-sans text-base antialiased font-normal dark:bg-slate-900 leading-default bg-gray-50 text-slate-500">
     <div class="absolute w-full bg-blue-500 dark:hidden min-h-75"></div>
-    <!-- sidenav  -->
-    <aside class="fixed inset-y-0 flex-wrap items-center justify-between block w-full p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 shadow-xl dark:shadow-none dark:bg-slate-850 max-w-64 ease-nav-brand z-990 xl:ml-6 rounded-2xl xl:left-0 xl:translate-x-0" aria-expanded="false">
+
+    <!-- Sidebar (giữ nguyên từ file gốc) -->
+    <aside class="fixed inset-y-0 flex-wrap items-center justify-between block w-full p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 shadow-xl dark:shadow-none dark:bg-slate-850 xl:ml-6 max-w-64 ease-nav-brand z-990 rounded-2xl xl:left-0 xl:translate-x-0" aria-expanded="false">
+      <!-- Sidebar content giữ nguyên -->
       <div class="h-19">
         <i class="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400 xl:hidden" sidenav-close></i>
-        <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-slate-700" href="https://demos.creative-tim.com/argon-dashboard-tailwind/pages/dashboard.html" target="_blank">
+        <a class="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-slate-700" href="javascript:;">
           <img src="../assets/img/logo-ct-dark.png" class="inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8" alt="main_logo" />
           <img src="../assets/img/logo-ct.png" class="hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8" alt="main_logo" />
           <span class="ml-1 font-semibold transition-all duration-200 ease-nav-brand">Admin Dashboard</span>
@@ -183,26 +184,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       <div class="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
         <ul class="flex flex-col pl-0 mb-0">
+          <!-- Các menu items giữ nguyên -->
           <li class="mt-0.5 w-full">
-            <a class=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="../pages/dashboard.html">
+            <a class="py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors dark:text-white dark:opacity-80" href="../pages/dashboard.html">
               <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                 <i class="relative top-0 text-sm leading-normal text-blue-500 ni ni-tv-2"></i>
               </div>
               <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Dashboard</span>
             </a>
           </li>
-
+          
           <li class="mt-0.5 w-full">
-            <a class="py-2.7 bg-blue-500/13 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" href="../pages/dashboard.html">
+            <a class="py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors dark:text-white dark:opacity-80" href="../pages/tables.php">
               <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
+                <!-- <i class="relative top-0 text-sm leading-normal text-blue-500 ni ni-tv-2"></i> -->
                 <i class="relative top-0 text-sm leading-normal text-slate-700 ni ni-single-02"></i>
               </div>
               <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Quản lý người dùng</span>
             </a>
           </li>
-
+          
           <li class="mt-0.5 w-full">
-            <a class=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors" href="../pages/products.php">
+            <a class="py-2.7 bg-blue-500/13 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors" href="products.php">
               <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                 <i class="relative top-0 text-sm leading-normal text-orange-500 ni ni-calendar-grid-58"></i>
               </div>
@@ -235,9 +238,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               </div>
               <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">RTL</span>
             </a>
-          </li> -->
+          </li>
 
-          <!-- <li class="w-full mt-4">
+          <li class="w-full mt-4">
             <h6 class="pl-6 ml-2 text-xs font-bold leading-tight uppercase dark:text-white opacity-60">Account pages</h6>
           </li> -->
 
@@ -267,6 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               <span class="ml-1 duration-300 opacity-100 pointer-events-none ease">Sign Up</span>
             </a>
           </li> -->
+          <!-- Thêm các menu items khác nếu cần -->
         </ul>
       </div>
     </aside>
@@ -282,9 +286,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               </li>
               <li class="text-sm pl-2 capitalize leading-normal text-white before:float-left before:pr-2 before:text-white before:content-['/']" aria-current="page">Quản lý người dùng</li>
             </ol>
-            <h6 class="mb-0 font-bold text-white capitalize">Danh sách người dùng</h6>
+            <h6 class="mb-0 font-bold text-white capitalize">Danh sách sản phẩm</h6>
           </nav>
-          
+
           <div class="flex items-center mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 lg:flex lg:basis-auto">
             <div class="flex items-center md:ml-auto md:pr-4">
               <form method="GET" action="" class="relative flex flex-wrap items-stretch w-full transition-all rounded-lg ease">
@@ -326,9 +330,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
               <div class="p-6 pb-0 mb-0 border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
                 <div class="flex justify-between items-center">
-                  <h6 class="dark:text-white">Danh sách người dùng</h6>
-                  <a href="add_user.php" class="px-4 py-2 text-sm font-bold leading-normal text-center text-white capitalize align-middle transition-all bg-blue-500 border-0 rounded-lg cursor-pointer hover:shadow-xs hover:-translate-y-px active:opacity-85 ease-in tracking-tight-rem shadow-md bg-150 bg-x-25">
-                    <i class="fas fa-plus mr-2"></i>Thêm người dùng
+                  <h6 class="dark:text-white">Danh sách sản phẩm</h6>
+                  <a href="product/add_product.php" class="px-4 py-2 text-sm font-bold leading-normal text-center text-white capitalize align-middle transition-all bg-blue-500 border-0 rounded-lg cursor-pointer hover:shadow-xs hover:-translate-y-px active:opacity-85 ease-in tracking-tight-rem shadow-md bg-150 bg-x-25">
+                    <i class="fas fa-plus mr-2"></i>Thêm sản phẩm
                   </a>
                 </div>
               </div>
@@ -338,12 +342,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <thead class="align-bottom">
                       <tr>
                         <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">ID</th>
-                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Họ tên</th>
-                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Tên đăng nhập</th>
-                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Số điện thoại</th>
-                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Vai trò</th>
-                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Trạng thái</th>
-                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Ngày tạo</th>
+                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Ten</th>
+                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Ma loai</th>
+                        <th class="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Mo ta</th>
+                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Xuat xu</th>
+                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Chat lieu</th>
+                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Gia</th>
                         <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Thao tác</th>
                       </tr>
                     </thead>
@@ -352,74 +356,61 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <?php while($row = $result->fetch_assoc()): ?>
                           <tr>
                             <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                              <p class="mb-0 text-xs font-semibold leading-tight dark:text-white dark:opacity-80"><?php echo htmlspecialchars($row['manguoidung']); ?></p>
+                              <p class="mb-0 text-xs font-semibold leading-tight dark:text-white dark:opacity-80"><?php echo htmlspecialchars($row['masanpham']); ?></p>
                             </td>
                             <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
                               <div class="flex px-2 py-1">
                                 <div class="flex flex-col justify-center">
-                                  <h6 class="mb-0 text-sm leading-normal dark:text-white"><?php echo htmlspecialchars($row['hotennguoidung']); ?></h6>
+                                  <h6 class="mb-0 text-sm leading-normal dark:text-white"><?php echo htmlspecialchars($row['tensanpham']); ?></h6>
                                 </div>
                               </div>
                             </td>
                             <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                              <p class="mb-0 text-xs font-semibold leading-tight dark:text-white dark:opacity-80"><?php echo htmlspecialchars($row['tendangnhap']); ?></p>
+                              <p class="mb-0 text-xs font-semibold leading-tight dark:text-white dark:opacity-80"><?php echo htmlspecialchars($row['maloai']); ?></p>
                             </td>
+                            
                             <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                              <p class="mb-0 text-xs font-semibold leading-tight dark:text-white dark:opacity-80"><?php echo htmlspecialchars($row['sodienthoai']); ?></p>
+                              <div class="flex px-2 py-1">
+                                <div class="flex flex-col justify-center">
+                                  <h6 class="mb-0 text-sm leading-normal dark:text-white"><?php echo htmlspecialchars($row['mota']); ?></h6>
+                                </div>
+                              </div>
                             </td>
-                            <td class="p-2 text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                              <span class="text-xs font-semibold leading-tight dark:text-white dark:opacity-80">
-                                <?php 
-                                $role = $row['vaitro'];
-                                $role_badge = '';
-                                switch($role) {
-                                  case 'admin':
-                                    $role_badge = 'bg-gradient-to-tl from-purple-700 to-pink-500';
-                                    break;
-                                  case 'staff':
-                                    $role_badge = 'bg-gradient-to-tl from-blue-700 to-cyan-500';
-                                    break;
-                                  case 'user':
-                                    $role_badge = 'bg-gradient-to-tl from-emerald-500 to-teal-400';
-                                    break;
-                                  default:
-                                    $role_badge = 'bg-gradient-to-tl from-slate-600 to-slate-300';
-                                }
-                                ?>
-                                <span class="px-2.5 text-xs rounded-1.8 py-1.4 inline-block whitespace-nowrap text-center align-baseline font-bold uppercase leading-none text-white <?php echo $role_badge; ?>">
-                                  <?php echo htmlspecialchars($role); ?>
-                                </span>
-                              </span>
+
+                            <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                              <div class="flex px-2 py-1">
+                                <div class="flex flex-col justify-center">
+                                  <h6 class="mb-0 text-sm leading-normal dark:text-white"><?php echo htmlspecialchars($row['xuatxu']); ?></h6>
+                                </div>
+                              </div>
                             </td>
-                            <td class="p-2 text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                              <?php 
-                              $status = $row['trangthai'];
-                              $status_class = ($status == '1') ? 'status-active' : 'status-inactive';
-                              $status_text = ($status == '1') ? 'Hoạt động' : 'Không hoạt động';
-                              ?>
-                              <span class="status-badge <?php echo $status_class; ?>">
-                                <?php echo $status_text; ?>
-                              </span>
+                            
+                            <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                              <div class="flex px-2 py-1">
+                                <div class="flex flex-col justify-center">
+                                  <h6 class="mb-0 text-sm leading-normal dark:text-white"><?php echo htmlspecialchars($row['chatlieu']); ?></h6>
+                                </div>
+                              </div>
                             </td>
-                            <td class="p-2 text-center align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
-                              <span class="text-xs font-semibold leading-tight dark:text-white dark:opacity-80">
-                                <?php echo date('d/m/Y', strtotime($row['ngaytao'])); ?>
-                              </span>
+
+                            <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
+                              <p class="mb-0 text-xs font-semibold leading-tight dark:text-white dark:opacity-80"><?php echo htmlspecialchars($row['gia']); ?></p>
                             </td>
+
                             <td class="p-2 align-middle bg-transparent border-b dark:border-white/40 whitespace-nowrap shadow-transparent">
                               <div class="action-buttons justify-center">
-                                <button onclick="editUser('<?php echo $row['manguoidung']; ?>')" class="btn-edit">
+                                <button onclick="editProduct('<?php echo $row['masanpham']; ?>')" class="btn-edit">
                                   <i class="fas fa-edit mr-1"></i>Sửa
                                 </button>
                                 <form method="POST" style="display: inline;">
-                                  <input type="hidden" name="id" value="<?php echo $row['manguoidung']; ?>">
+                                  <input type="hidden" name="id" value="<?php echo $row['masanpham']; ?>">
                                   <input type="hidden" name="action" value="toggle_status">
                                   <button type="submit" class="btn-toggle" onclick="return confirm('Bạn có chắc muốn thay đổi trạng thái?')">
                                     <i class="fas fa-power-off mr-1"></i>Đổi TT
                                   </button>
                                 </form>
                                 <form method="POST" style="display: inline;">
-                                  <input type="hidden" name="id" value="<?php echo $row['manguoidung']; ?>">
+                                  <input type="hidden" name="id" value="<?php echo $row['masanpham']; ?>">
                                   <input type="hidden" name="action" value="delete_user">
                                   <button type="submit" class="btn-delete" onclick="return confirmDelete()">
                                     <i class="fas fa-trash mr-1"></i>Xóa
@@ -446,7 +437,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <p class="text-sm text-slate-500 dark:text-white">
                       <?php 
                       $total_users = $result ? $result->num_rows : 0;
-                      echo "Hiển thị " . $total_users . " người dùng";
+                      echo "Hiển thị " . $total_users . " sản phẩm";
                       ?>
                     </p>
                     <!-- Có thể thêm phân trang ở đây nếu cần -->
@@ -462,7 +453,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="flex flex-wrap items-center -mx-3 lg:justify-between">
               <div class="w-full max-w-full px-3 mt-0 mb-6 shrink-0 lg:mb-0 lg:w-1/2 lg:flex-none">
                 <div class="text-sm leading-normal text-center text-slate-500 lg:text-left">
-                  © <?php echo date('Y'); ?>, Hệ thống quản lý người dùng
+                  © <?php echo date('Y'); ?>, Hệ thống quản lý sản phẩm
                 </div>
               </div>
             </div>
@@ -480,8 +471,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         return confirm('Bạn có chắc chắn muốn xóa người dùng này?');
       }
       
-      function editUser(userId) {
-        window.location.href = 'edit_user.php?id=' + userId;
+      function editProduct(userId) {
+        window.location.href = 'product/edit_product.php?id=' + userId;
       }
       
       // Tự động submit form search khi nhập

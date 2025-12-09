@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         // Chuyển hướng dựa trên vai trò
                         if ($user['vaitro'] === 'admin') {
-                            header("Location: admin/dashboard.php");
+                            header("Location: admin1/build");
                         } else {
                             header("Location: index.php");
                         }
