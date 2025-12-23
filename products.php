@@ -1,3 +1,31 @@
+<?php
+require 'conn.php'; // Kết nối CSDL
+
+// 1. Lấy mã loại từ URL để lọc (nếu có)
+$maloai_filter = isset($_GET['maloai']) ? (int)$_GET['maloai'] : 0;
+
+// 2. Lấy danh sách danh mục cho Sidebar
+$sql_loai = "SELECT * FROM tbl_loai";
+$res_loai = $conn->query($sql_loai);
+
+// 3. Xây dựng câu truy vấn sản phẩm
+$sql_sp = "SELECT * FROM tbl_sanpham WHERE trangthai = 1";
+if ($maloai_filter > 0) {
+    $sql_sp .= " AND maloai = $maloai_filter";
+}
+
+// Xử lý sắp xếp (giả sử bạn truyền tham số sort qua URL)
+$sort = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
+switch ($sort) {
+    case 'price-low': $sql_sp .= " ORDER BY gia ASC"; break;
+    case 'price-high': $sql_sp .= " ORDER BY gia DESC"; break;
+    case 'name': $sql_sp .= " ORDER BY tensanpham ASC"; break;
+    default: $sql_sp .= " ORDER BY masanpham DESC"; break;
+}
+
+$res_sp = $conn->query($sql_sp);
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,10 +37,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Header -->
     <?php include 'header.php'; ?>
 
-    <!-- Products Section -->
     <section class="products-section">
         <div class="container">
             <div class="products-header">
@@ -23,114 +49,82 @@
             </div>
 
             <div class="products-layout">
-                <!-- Sidebar Filters -->
                 <aside class="filters-sidebar">
                     <div class="filter-group">
                         <h3 class="filter-title">Danh mục</h3>
                         <ul class="filter-list">
-                            <li><a href="#" class="active">Tất cả sản phẩm</a></li>
-                            <li><a href="#">Gốm mỹ nghệ</a></li>
-                            <li><a href="#">Bộ ấm chén</a></li>
-                            <li><a href="#">Đồ trang trí</a></li>
-                            <li><a href="#">Quà tặng</a></li>
+                            <li>
+                                <a href="products.php" class="<?php echo $maloai_filter == 0 ? 'active' : ''; ?>">
+                                    Tất cả sản phẩm
+                                </a>
+                            </li>
+                            <?php while($row_loai = $res_loai->fetch_assoc()): ?>
+                            <li>
+                                <a href="products.php?maloai=<?php echo $row_loai['maloai']; ?>" 
+                                   class="<?php echo $maloai_filter == $row_loai['maloai'] ? 'active' : ''; ?>">
+                                    <?php echo $row_loai['tenloai']; ?>
+                                </a>
+                            </li>
+                            <?php endwhile; ?>
                         </ul>
                     </div>
+                    </aside>
 
-                    <div class="filter-group">
-                        <h3 class="filter-title">Giá</h3>
-                        <div class="price-range">
-                            <div class="range-inputs">
-                                <input type="number" placeholder="Từ" min="0" class="min-price">
-                                <span>-</span>
-                                <input type="number" placeholder="Đến" min="0" class="max-price">
-                            </div>
-                            <button class="btn btn-primary btn-small">Áp dụng</button>
-                        </div>
-                    </div>
-
-                    <div class="filter-group">
-                        <h3 class="filter-title">Kích thước</h3>
-                        <ul class="filter-list">
-                            <li><label><input type="checkbox"> Nhỏ (dưới 15cm)</label></li>
-                            <li><label><input type="checkbox"> Trung bình (15-30cm)</label></li>
-                            <li><label><input type="checkbox"> Lớn (trên 30cm)</label></li>
-                        </ul>
-                    </div>
-
-                    <div class="filter-group">
-                        <h3 class="filter-title">Màu sắc</h3>
-                        <div class="color-filters">
-                            <span class="color-option" style="background-color: #8b7355;" title="Nâu"></span>
-                            <span class="color-option" style="background-color: #c9a96e;" title="Vàng"></span>
-                            <span class="color-option" style="background-color: #1a365d;" title="Xanh"></span>
-                            <span class="color-option" style="background-color: #ffffff; border: 1px solid #ccc;" title="Trắng"></span>
-                            <span class="color-option" style="background-color: #000000;" title="Đen"></span>
-                        </div>
-                    </div>
-
-                    <div class="filter-group">
-                        <h3 class="filter-title">Sắp xếp theo</h3>
-                        <select class="sort-select">
-                            <option value="popular">Phổ biến nhất</option>
-                            <option value="newest">Mới nhất</option>
-                            <option value="price-low">Giá thấp đến cao</option>
-                            <option value="price-high">Giá cao đến thấp</option>
-                            <option value="name">Tên A-Z</option>
-                        </select>
-                    </div>
-
-                    <button class="btn btn-secondary btn-full">Xóa bộ lọc</button>
-                </aside>
-
-                <!-- Products Grid -->
                 <main class="products-main">
                     <div class="products-toolbar">
                         <div class="products-count">
-                            Hiển thị <span>12</span> của <span>48</span> sản phẩm
+                            Hiển thị <span><?php echo $res_sp->num_rows; ?></span> sản phẩm
                         </div>
                         <div class="view-options">
-                            <button class="view-btn active" data-view="grid">
-                                <i class="fas fa-th"></i>
-                            </button>
-                            <button class="view-btn" data-view="list">
-                                <i class="fas fa-list"></i>
-                            </button>
+                            <select class="sort-select" onchange="location = this.value;">
+                                <option value="products.php?sort=newest" <?php echo $sort == 'newest' ? 'selected' : ''; ?>>Mới nhất</option>
+                                <option value="products.php?sort=price-low" <?php echo $sort == 'price-low' ? 'selected' : ''; ?>>Giá thấp đến cao</option>
+                                <option value="products.php?sort=price-high" <?php echo $sort == 'price-high' ? 'selected' : ''; ?>>Giá cao đến thấp</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="products-grid" id="productsView">
-                        <!-- Product cards will be generated here -->
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="pagination">
-                        <a href="#" class="page-nav disabled">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                        <a href="#" class="page-number active">1</a>
-                        <a href="#" class="page-number">2</a>
-                        <a href="#" class="page-number">3</a>
-                        <a href="#" class="page-number">4</a>
-                        <a href="#" class="page-nav">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
+                        <?php if ($res_sp->num_rows > 0): ?>
+                            <?php while($product = $res_sp->fetch_assoc()): ?>
+                                <div class="product-card">
+                                    <div class="product-image">
+                                        <img src="uploads/products/<?php echo $product['hinhAnh']; ?>" alt="<?php echo $product['tensanpham']; ?>">
+                                        <div class="product-actions">
+                                            <button title="Xem nhanh" class="quick-view" onclick="openQuickView(<?php echo $product['masanpham']; ?>)">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button title="Thêm vào giỏ" class="add-to-cart">
+                                                <i class="fas fa-shopping-cart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">
+                                            <a href="product-detail.php?id=<?php echo $product['masanpham']; ?>">
+                                                <?php echo $product['tensanpham']; ?>
+                                            </a>
+                                        </h3>
+                                        <div class="product-price">
+                                            <?php echo number_format($product['gia'], 0, ',', '.'); ?> đ
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <p>Không tìm thấy sản phẩm nào.</p>
+                        <?php endif; ?>
                     </div>
                 </main>
             </div>
         </div>
     </section>
 
-    <!-- Quick View Modal -->
-    <div class="modal" id="quickViewModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <div class="quick-view-content">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
     <script src="js/main.js"></script>
-    <script src="js/products.js"></script>
+    <script>
+        function openQuickView(id) {
+            // Logic gọi AJAX lấy chi tiết sản phẩm và hiện modal
+        }
+    </script>
 </body>
 </html>
