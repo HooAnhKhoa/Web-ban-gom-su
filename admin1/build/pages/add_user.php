@@ -35,6 +35,18 @@ include '../includes/sidebar.php';
 ?>
 
 <main class="relative h-full max-h-screen transition-all duration-200 ease-in-out xl:ml-68 rounded-xl">
+        <nav class="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 transition-all ease-in shadow-none duration-250 rounded-2xl lg:flex-nowrap lg:justify-start" navbar-main>
+        <div class="flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
+            <nav>
+                <ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
+                    <li class="text-sm leading-normal text-white opacity-50">Pages</li>
+                    <li class="text-sm pl-2 capitalize leading-normal text-white before:float-left before:pr-2 before:content-['/']">Quản lý người dùng</li>
+                    <li class="text-sm pl-2 capitalize leading-normal text-white before:float-left before:pr-2 before:content-['/']">Thêm mới</li>
+                </ol>
+                <h6 class="mb-0 font-bold text-white capitalize">Thêm người dùng mới</h6>
+            </nav>
+        </div>
+    </nav>
     <div class="w-full px-6 py-6 mx-auto">
         <div class="flex flex-wrap -mx-3">
             <div class="w-full max-w-full px-3 mx-auto mt-0 lg:w-8/12">

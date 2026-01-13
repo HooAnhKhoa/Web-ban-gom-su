@@ -67,7 +67,9 @@ include '../includes/sidebar.php'; // Đi lên 1 cấp vào build rồi vào inc
                 <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-xl dark:bg-slate-850 rounded-2xl">
                     <div class="p-6 pb-0 mb-0 border-b-0 rounded-t-2xl flex justify-between">
                         <h6 class="dark:text-white">Bảng người dùng</h6>
-                        <a href="add_user.php" class="px-4 py-2 text-xs font-bold text-white bg-blue-500 rounded-lg uppercase">Thêm mới</a>
+                        <a href="add_user.php" class="px-4 py-2 text-xs font-bold text-white bg-blue-500 rounded-lg uppercase shadow-md hover:shadow-lg transition-all">
+                            <i class="btn-add"></i> Thêm mới
+                        </a>
                     </div>
                     <div class="flex-auto px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">

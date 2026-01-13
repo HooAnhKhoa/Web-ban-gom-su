@@ -1,14 +1,39 @@
 <?php
 // header.php
-if(!isset($_SESSION)) 
-{ 
+if(!isset($_SESSION)) { 
     session_start(); 
 }
+
+// Kết nối database
+require_once 'conn.php';
 
 // Kiểm tra trạng thái đăng nhập
 $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
 $userName = $isLoggedIn ? ($_SESSION['user_name'] ?? $_SESSION['user_email']) : '';
 $userRole = $isLoggedIn ? ($_SESSION['user_role'] ?? 'user') : '';
+
+// Lấy danh mục cho menu dropdown
+$sql_categories = "SELECT maloai, tenloai FROM tbl_loai WHERE trangthai = 1 ORDER BY tenloai";
+$result_categories = $conn->query($sql_categories);
+$categories = [];
+while($row = $result_categories->fetch_assoc()) {
+    $categories[] = $row;
+}
+
+// Tính số lượng sản phẩm trong giỏ hàng
+$cart_count = 0;
+if($isLoggedIn && isset($_SESSION['manguoidung'])) {
+    $user_id = $_SESSION['manguoidung'];
+    $sql_cart = "SELECT SUM(soluong) as total FROM tbl_giohang WHERE manguoidung = ?";
+    $stmt_cart = $conn->prepare($sql_cart);
+    $stmt_cart->bind_param("i", $user_id);
+    $stmt_cart->execute();
+    $result_cart = $stmt_cart->get_result();
+    if($cart_data = $result_cart->fetch_assoc()) {
+        $cart_count = $cart_data['total'] ?? 0;
+    }
+    $stmt_cart->close();
+}
 ?>
 
 <header>
@@ -43,10 +68,11 @@ $userRole = $isLoggedIn ? ($_SESSION['user_role'] ?? 'user') : '';
                 </div>
                 <div class="header-icons">
                     <a href="profile.php"><i class="fas fa-user"></i></a>
-                    <a href="wishlist.php"><i class="fas fa-heart"></i></a>
-                    <a href="cart.php">
+                    <a href="cart.php" title="Giỏ hàng">
                         <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-count">3</span>
+                        <?php if($cart_count > 0): ?>
+                            <span class="cart-count"><?php echo $cart_count; ?></span>
+                        <?php endif; ?>
                     </a>
                 </div>
                 <button class="mobile-menu-btn">
@@ -57,18 +83,25 @@ $userRole = $isLoggedIn ? ($_SESSION['user_role'] ?? 'user') : '';
         <nav>
             <div class="container">
                 <ul class="nav-menu">
-                    <li><a href="index.php">Trang chủ</a></li>
+                    <li><a href="index.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>">Trang chủ</a></li>
+                    
                     <li>
-                        <a href="products.php">Sản phẩm <i class="fas fa-chevron-down"></i></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="products.php?category=1">Gốm mỹ nghệ</a></li>
-                            <li><a href="products.php?category=2">Bộ ấm chén</a></li>
-                            <li><a href="products.php?category=3">Đồ trang trí</a></li>
-                            <li><a href="products.php?category=4">Quà tặng</a></li>
-                        </ul>
+                        <a href="products.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'products.php') ? 'active' : ''; ?>">
+                            Sản phẩm <i class="fas fa-chevron-down"></i>
+                        </a>
+                        <?php if(count($categories) > 0): ?>
+                            <ul class="dropdown-menu">
+                                <li><a href="products.php">Tất cả sản phẩm</a></li>
+                                <?php foreach($categories as $category): ?>
+                                    <li>
+                                        <a href="products.php?maloai=<?php echo $category['maloai']; ?>">
+                                            <?php echo htmlspecialchars($category['tenloai']); ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
                     </li>
-                    <li><a href="about.php">Về chúng tôi</a></li>
-                    <li><a href="contact.php">Liên hệ</a></li>
                 </ul>
             </div>
         </nav>

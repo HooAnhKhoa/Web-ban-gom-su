@@ -156,28 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </button>
                     </form>
                     
-                    <div class="auth-divider">
-                        <span>Hoặc đăng nhập với</span>
-                    </div>
-                    
-                    <div class="social-login">
-                        <button type="button" class="btn btn-social btn-google">
-                            <i class="fab fa-google"></i>
-                            Google
-                        </button>
-                        <button type="button" class="btn btn-social btn-facebook">
-                            <i class="fab fa-facebook-f"></i>
-                            Facebook
-                        </button>
-                    </div>
-                    
                     <div class="auth-switch">
                         Chưa có tài khoản? <a href="register.php">Đăng ký ngay</a>
                     </div>
-                </div>
-                
-                <div class="auth-image">
-                    <img src="https://images.unsplash.com/photo-1580745374183-d7fbf5f5b4da?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Gốm sứ tinh xảo">
                 </div>
             </div>
         </div>
@@ -211,5 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     </script>
+        <?php include 'includes/footer.php'; ?>
+
 </body>
 </html>

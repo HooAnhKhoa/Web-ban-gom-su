@@ -1,7 +1,7 @@
 <?php
 if(!isset($_SESSION)) { 
     session_start(); 
-    ob_start(); // Thêm buffer output để tránh lỗi header
+    ob_start();
 }
 
 // 1. Kiểm tra đăng nhập và kết nối Database
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'], $_POST['id']
     $id = intval($_POST['id']); // Thêm kiểm tra an toàn
     
     if ($_POST['action'] == 'toggle_status') {
-        $update_sql = "UPDATE tbl_sanpham SET trangthai = 1 - trangthai WHERE masanpham = ?";
+        $update_sql = "UPDATE tbl_loai SET trangthai = 1 - trangthai WHERE maloai = ?";
         $stmt = $conn->prepare($update_sql);
         $stmt->bind_param("i", $id);
         if ($stmt->execute()) {
@@ -27,13 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'], $_POST['id']
             $_SESSION['error'] = 'Cập nhật trạng thái thất bại!';
         }
         $stmt->close();
-        header("Location: products.php");
+        header("Location: categories.php");
         exit();
     }
     
-    if ($_POST['action'] == 'delete_product') {
+    if ($_POST['action'] == 'delete_category') {
         // Kiểm tra ràng buộc đơn hàng trước khi xóa
-        $check_sql = "SELECT COUNT(*) FROM tbl_hoadon WHERE masanpham = ?";
+        $check_sql = "SELECT COUNT(*) FROM tbl_sanpham WHERE maloai = ?";
         $check_stmt = $conn->prepare($check_sql);
         $check_stmt->bind_param("i", $id);
         $check_stmt->execute();
@@ -42,44 +42,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'], $_POST['id']
         $check_stmt->close();
         
         if ($count > 0) {
-            $_SESSION['error'] = 'Không thể xóa sản phẩm vì đã có trong đơn hàng!';
+            $_SESSION['error'] = 'Không thể xóa loại vì đã có sản phẩm!';
         } else {
-            // Xóa file ảnh cũ nếu cần (Optional)
-            /*
-            $img_sql = "SELECT hinhAnh FROM tbl_sanpham WHERE masanpham = ?";
-            $img_stmt = $conn->prepare($img_sql);
-            $img_stmt->bind_param("i", $id);
-            $img_stmt->execute();
-            $res = $img_stmt->get_result();
-            if($r = $res->fetch_assoc()) {
-                $path = "../../../uploads/products/" . $r['hinhAnh'];
-                if(file_exists($path)) unlink($path);
-            }
-            $img_stmt->close();
-            */
-
-            $delete_sql = "DELETE FROM tbl_sanpham WHERE masanpham = ?";
+            $delete_sql = "DELETE FROM tbl_loai WHERE maloai = ?";
             $stmt = $conn->prepare($delete_sql);
             $stmt->bind_param("i", $id);
             if ($stmt->execute()) {
-                $_SESSION['success'] = 'Xóa sản phẩm thành công!';
+                $_SESSION['success'] = 'Xóa loại thành công!';
             } else {
-                $_SESSION['error'] = 'Xóa sản phẩm thất bại!';
+                $_SESSION['error'] = 'Xóa loại thất bại!';
             }
             $stmt->close();
         }
-        header("Location: products.php");
+        header("Location: categories.php");
         exit();
     }
 }
 
-// Lấy danh sách sản phẩm
-$sql = "SELECT sp.*, l.tenloai FROM tbl_sanpham sp LEFT JOIN tbl_loai l ON sp.maloai = l.maloai WHERE 1=1";
+// Lấy danh sách loại
+$sql = "SELECT l.*, 
+        (SELECT COUNT(*) FROM tbl_sanpham WHERE maloai = l.maloai) as product_count 
+        FROM tbl_loai l WHERE 1=1";
 if (!empty($search)) {
-    $sql .= " AND (sp.tensanpham LIKE ? OR sp.mota LIKE ?)";
+    $sql .= " AND (l.tenloai LIKE ? OR l.mota LIKE ?)";
     $searchTerm = "%$search%";
 }
-$sql .= " ORDER BY sp.masanpham DESC";
+$sql .= " ORDER BY l.maloai DESC";
 
 $stmt = $conn->prepare($sql);
 if (!empty($search)) {
@@ -99,9 +87,9 @@ include '../includes/sidebar.php';
             <nav>
                 <ol class="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
                     <li class="text-sm leading-normal text-white opacity-50">Pages</li>
-                    <li class="text-sm pl-2 capitalize leading-normal text-white before:float-left before:pr-2 before:content-['/']">Quản lý sản phẩm</li>
+                    <li class="text-sm pl-2 capitalize leading-normal text-white before:float-left before:pr-2 before:content-['/']">Quản lý loại sản phẩm</li>
                 </ol>
-                <h6 class="mb-0 font-bold text-white capitalize">Danh sách sản phẩm</h6>
+                <h6 class="mb-0 font-bold text-white capitalize">Danh sách loại sản phẩm</h6>
             </nav>
             <div class="flex items-center mt-2 grow sm:mt-0 sm:mr-6 md:mr-0 lg:flex lg:basis-auto">
                 <div class="flex items-center md:ml-auto md:pr-4">
@@ -109,7 +97,7 @@ include '../includes/sidebar.php';
                         <span class="absolute z-50 flex items-center h-full px-2.5 text-center pointer-events-none">
                             <i class="fas fa-search text-slate-400"></i>
                         </span>
-                        <input type="text" name="search" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none" placeholder="Tìm sản phẩm..." value="<?php echo htmlspecialchars($search); ?>">
+                        <input type="text" name="search" class="pl-9 text-sm focus:shadow-primary-outline ease w-1/100 leading-5.6 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white py-2 pr-3 text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none" placeholder="Tìm loại sản phẩm..." value="<?php echo htmlspecialchars($search); ?>">
                     </form>
                 </div>
             </div>
@@ -117,15 +105,32 @@ include '../includes/sidebar.php';
     </nav>
 
     <div class="w-full px-6 py-6 mx-auto">
-
+        <!-- HIỂN THỊ THÔNG BÁO Ở ĐÂY -->
+        <?php if (isset($success_message)): ?>
+        <div class="mb-6">
+            <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>
+                <?php echo htmlspecialchars($success_message); ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <?php if (isset($error_message)): ?>
+        <div class="mb-6">
+            <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <?php echo htmlspecialchars($error_message); ?>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <div class="flex flex-wrap -mx-3">
             <div class="flex-none w-full max-w-full px-3">
                 <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 shadow-xl dark:bg-slate-850 rounded-2xl">
                     <div class="p-6 pb-0 mb-0 border-b-0 rounded-t-2xl flex justify-between items-center">
-                        <h6 class="dark:text-white">Bảng sản phẩm</h6>
-                        <a href="add_product.php" class="px-4 py-2 text-xs font-bold text-white bg-blue-500 rounded-lg uppercase shadow-md hover:shadow-lg transition-all">
-                            <i class="btn-add"></i> Thêm mới
+                        <h6 class="dark:text-white">Bảng loại sản phẩm</h6>
+                        <a href="add_category.php" class="px-4 py-2 text-xs font-bold text-white bg-blue-500 rounded-lg uppercase shadow-md hover:shadow-lg transition-all">
+                            <i class="fas fa-plus mr-1"></i> Thêm mới
                         </a>
                     </div>
                     <div class="flex-auto px-0 pt-0 pb-2">
@@ -133,11 +138,10 @@ include '../includes/sidebar.php';
                             <table class="items-center w-full mb-0 align-top border-collapse text-slate-500">
                                 <thead class="align-bottom">
                                     <tr>
-                                        <th class="px-6 py-3 font-bold text-left uppercase text-xxs opacity-70">Sản phẩm</th>
-                                        <th class="px-6 py-3 font-bold text-center uppercase text-xxs opacity-70">Loại</th>
-                                        <th class="px-6 py-3 font-bold text-center uppercase text-xxs opacity-70">Giá (đ)</th>
-                                        <th class="px-6 py-3 font-bold text-center uppercase text-xxs opacity-70">Số lượng</th>
-                                        <th class="px-6 py-3 font-bold text-center uppercase text-xxs opacity-70">Trạng thái</th>
+                                        <th class="px-6 py-3 font-bold text-left uppercase text-xxs opacity-70">Mã loại</th>
+                                        <th class="px-6 py-3 font-bold text-left uppercase text-xxs opacity-70">Tên loại</th>
+                                        <th class="px-6 py-3 font-bold text-left uppercase text-xxs opacity-70">Mô tả</th>
+                                        <th class="px-6 py-3 font-bold text-center uppercase text-xxs opacity-70">Số SP</th>
                                         <th class="px-6 py-3 font-bold text-center uppercase text-xxs opacity-70">Thao tác</th>
                                     </tr>
                                 </thead>
@@ -146,46 +150,28 @@ include '../includes/sidebar.php';
                                         <?php while($row = $result->fetch_assoc()): ?>
                                         <tr>
                                             <td class="p-2 align-middle border-b dark:border-white/40">
-                                                <div class="flex px-2 py-1">
-                                                    <div>
-                                                        <img src="../../../uploads/products/<?php echo htmlspecialchars($row['hinhAnh']); ?>" class="inline-flex items-center justify-center mr-4 text-sm text-white transition-all duration-200 ease-in-out h-12 w-12 rounded-xl object-cover" alt="product" onerror="this.src='../assets/img/default-product.jpg'">
-                                                    </div>
-                                                    <div class="flex flex-col justify-center">
-                                                        <h6 class="mb-0 text-sm leading-normal dark:text-white"><?php echo htmlspecialchars($row['tensanpham']); ?></h6>
-                                                        <p class="mb-0 text-xs text-slate-400">ID: #<?php echo $row['masanpham']; ?></p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="p-2 align-middle border-b dark:border-white/40 text-center text-sm">
-                                                <?php echo htmlspecialchars($row['tenloai']); ?>
-                                            </td>
-                                            <td class="p-2 align-middle border-b dark:border-white/40 text-center text-sm font-bold text-blue-500">
-                                                <?php echo number_format($row['gia'], 0, ',', '.'); ?>
-                                            </td>
-                                            <td class="p-2 align-middle border-b dark:border-white/40 text-center text-sm">
-                                                <?php echo htmlspecialchars($row['soluong']); ?>
-                                            </td>
-                                            <td class="p-2 align-middle border-b dark:border-white/40 text-center">
-                                                <span class="px-2 py-1 text-xs font-semibold rounded-full <?php echo ($row['trangthai'] == 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
-                                                    <?php echo ($row['trangthai'] == 1 ? 'Hiển thị' : 'Ẩn'); ?>
-                                                </span>
+                                                <span class="text-sm font-semibold">#<?php echo $row['maloai']; ?></span>
                                             </td>
                                             <td class="p-2 align-middle border-b dark:border-white/40">
+                                                <span class="text-sm font-semibold dark:text-white"><?php echo htmlspecialchars($row['tenloai']); ?></span>
+                                            </td>
+                                            <td class="p-2 align-middle border-b dark:border-white/40">
+                                                <span class="text-sm"><?php echo htmlspecialchars($row['mota'] ?? 'Chưa có mô tả'); ?></span>
+                                            </td>
+                                            <td class="p-2 align-middle border-b dark:border-white/40 text-center">
+                                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                    <?php echo $row['product_count']; ?> SP
+                                                </span>
+                                            </td>                                       
+                                            <td class="p-2 align-middle border-b dark:border-white/40">
                                                 <div class="action-buttons justify-center">
-                                                    <a href="edit_product.php?id=<?php echo $row['masanpham']; ?>" class="btn-edit">
+                                                    <a href="edit_category.php?id=<?php echo $row['maloai']; ?>" class="btn-edit">
                                                         Sửa
                                                     </a>
-                                                    
-                                                    <form method="POST" style="display: inline;">
-                                                        <input type="hidden" name="id" value="<?php echo $row['masanpham']; ?>">
-                                                        <input type="hidden" name="action" value="toggle_status">
-                                                        <button type="submit" class="btn-toggle">
-                                                            Đổi TT
-                                                        </button>
-                                                    </form>
+                                    
                                                     <form method="POST" style="display: inline;" onsubmit="return confirm('Xác nhận xóa sản phẩm này?');">
-                                                        <input type="hidden" name="id" value="<?php echo $row['masanpham']; ?>">
-                                                        <input type="hidden" name="action" value="delete_product">
+                                                        <input type="hidden" name="id" value="<?php echo $row['maloai']; ?>">
+                                                        <input type="hidden" name="action" value="delete_category">
                                                         <button type="submit" class="btn-delete">
                                                             Xóa
                                                         </button>
@@ -197,7 +183,7 @@ include '../includes/sidebar.php';
                                     <?php else: ?>
                                         <tr>
                                             <td colspan="5" class="p-4 text-center border-b dark:border-white/40">
-                                                <p class="text-slate-500">Không tìm thấy sản phẩm nào.</p>
+                                                <p class="text-slate-500">Không tìm thấy loại sản phẩm nào.</p>
                                             </td>
                                         </tr>
                                     <?php endif; ?>
